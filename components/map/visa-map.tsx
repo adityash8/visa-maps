@@ -18,6 +18,8 @@ export function VisaMap({ colorExpression, onCountryClick }: VisaMapProps) {
   const readyRef = useRef(false);
   const clickHandlerRef = useRef(onCountryClick);
   clickHandlerRef.current = onCountryClick;
+  const colorRef = useRef(colorExpression);
+  colorRef.current = colorExpression;
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -63,8 +65,9 @@ export function VisaMap({ colorExpression, onCountryClick }: VisaMapProps) {
 
       readyRef.current = true;
 
-      if (typeof colorExpression !== "string") {
-        map.setPaintProperty("countries-fill", "fill-color", colorExpression as any);
+      // Apply latest color expression (may have arrived before map loaded)
+      if (typeof colorRef.current !== "string") {
+        map.setPaintProperty("countries-fill", "fill-color", colorRef.current as any);
       }
     });
 
@@ -107,6 +110,8 @@ export function VisaMap({ colorExpression, onCountryClick }: VisaMapProps) {
   }, [colorExpression]);
 
   return (
-    <div ref={containerRef} className="absolute inset-0" />
+    <div className="absolute inset-0">
+      <div ref={containerRef} className="w-full h-full" />
+    </div>
   );
 }
