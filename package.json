@@ -1,0 +1,39 @@
+{
+  "name": "visa-maps",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.98.0",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/node": "^25.3.3",
+    "@types/react": "^19.2.14",
+    "autoprefixer": "^10.4.27",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "lucide-react": "^0.576.0",
+    "maplibre-gl": "^5.19.0",
+    "next": "^14.2.35",
+    "postcss": "^8.5.8",
+    "posthog-js": "^1.357.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3",
+    "vaul": "^1.1.2"
+  },
+  "devDependencies": {
+    "@types/geojson": "^7946.0.16"
+  }
+}
