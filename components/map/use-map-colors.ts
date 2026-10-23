@@ -3,9 +3,9 @@
 import { useMemo } from "react";
 import type { VisaRulesMap, VisaCategory } from "@/lib/constants";
 import { VISA_COLORS, DEFAULT_COLOR, HOME_COLOR } from "@/lib/constants";
-import { getVisaRule, getDualVisaRule } from "@/lib/visa-data";
+import { getBestVisaRule } from "@/lib/visa-data";
 
-type MapExpression = ["match", ["get", string], ...Array<string | string[]>];
+export type MapExpression = ["match", ["get", string], string, string, ...string[], string];
 
 export function useMapColors(
   rules: VisaRulesMap | null,
@@ -14,17 +14,19 @@ export function useMapColors(
   filter: VisaCategory | null
 ): MapExpression | string {
   return useMemo(() => {
-    if (!rules || !rules[passport]) return DEFAULT_COLOR;
+    if (!rules) return DEFAULT_COLOR;
 
-    const destinations = rules[passport];
+    const destinations = new Set([
+      ...Object.keys(rules[passport] ?? {}),
+      ...Object.keys(passport2 ? rules[passport2] ?? {} : {}),
+    ]);
     const entries: string[] = [];
 
-    for (const [dest, rule] of Object.entries(destinations)) {
-      const effectiveRule = passport2
-        ? getDualVisaRule(rules, passport, passport2, dest)
-        : rule;
-
-      if (!effectiveRule) continue;
+    for (const dest of Array.from(destinations)) {
+      if (dest === passport || dest === passport2) continue;
+      const selection = getBestVisaRule(rules, passport, passport2, dest);
+      if (!selection) continue;
+      const effectiveRule = selection.rule;
 
       const color = VISA_COLORS[effectiveRule.category];
 
@@ -37,11 +39,10 @@ export function useMapColors(
     }
 
     // Add home country color
-    entries.push(passport, HOME_COLOR);
-    if (passport2) {
+    if (passport2 && passport2 !== passport) {
       entries.push(passport2, HOME_COLOR);
     }
 
-    return ["match", ["get", "ISO_A2_EH"], ...entries, DEFAULT_COLOR] as MapExpression;
+    return ["match", ["get", "ISO_A2_EH"], passport, HOME_COLOR, ...entries, DEFAULT_COLOR] as MapExpression;
   }, [rules, passport, passport2, filter]);
 }

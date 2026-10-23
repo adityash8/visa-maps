@@ -1,0 +1,19 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "app",
+  "theme": "editorial",
+  "shape": "app screen",
+  "axes": "light/instrument-sans/chromatic-green",
+  "nav": "passport toolbar",
+  "footer": "waitlist disclosure",
+  "imagery": "real MapLibre country geometry",
+  "photos": [],
+  "entry": "passport selection",
+  "signature": "source-checked atlas",
+  "waived": [],
+  "prompt": "Travelers compare passport entry rules on a map and find official sources",
+  "date": "2026-10-23"
+ }
+]

@@ -1,48 +1,11 @@
-import { VISA_LABELS, VISA_COLORS, type VisaCategory, type VisaRule } from "@/lib/constants";
-
-interface VisaSummaryTableProps {
-  rules: Record<string, VisaRule>;
-  category: VisaCategory;
-}
-
-export function VisaSummaryTable({ rules, category }: VisaSummaryTableProps) {
-  const entries = Object.entries(rules)
-    .filter(([, r]) => r.category === category)
-    .sort(([a], [b]) => a.localeCompare(b));
-
-  if (entries.length === 0) return null;
-
-  return (
-    <div className="mb-8">
-      <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-        <span
-          className="inline-block h-3 w-3 rounded-full"
-          style={{ backgroundColor: VISA_COLORS[category] }}
-        />
-        {VISA_LABELS[category]} ({entries.length})
-      </h2>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="border-b text-left">
-              <th className="py-2 pr-4 font-medium">Country</th>
-              <th className="py-2 pr-4 font-medium">Duration</th>
-              <th className="py-2 font-medium">Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map(([code, rule]) => (
-              <tr key={code} className="border-b border-gray-100">
-                <td className="py-1.5 pr-4 font-mono">{code}</td>
-                <td className="py-1.5 pr-4">
-                  {rule.duration ? `${rule.duration} days` : "—"}
-                </td>
-                <td className="py-1.5 text-gray-600">{rule.notes ?? "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+import Link from "next/link";
+import { StaleNotice } from "@/components/provenance-stale-notice";
+import { VISA_LABELS, type VisaCategory, type VisaRule } from "@/lib/constants";
+import { isReviewedVisaRule } from "@/lib/visa-data";
+import { destinationName } from "@/lib/destinations";
+interface VisaSummaryTableProps { rules: Record<string, VisaRule>; category: VisaCategory; passportCode: string; }
+export function VisaSummaryTable({ rules, category, passportCode }: VisaSummaryTableProps) {
+  const entries = Object.entries(rules).filter(([, rule]) => isReviewedVisaRule(rule) && rule.category === category).sort(([a], [b]) => destinationName(a).localeCompare(destinationName(b), "en"));
+  if (!entries.length) return null;
+  return <section className="summary-section"><h2>{VISA_LABELS[category]} ({entries.length})</h2><table className="rule-table"><thead><tr><th>Destination</th><th>Conditions and maximum stay</th><th>Source and checked date</th></tr></thead><tbody>{entries.map(([code, rule]) => <tr key={code}><td><Link href={`/?p=${passportCode}&destination=${code}`}>{destinationName(code)}</Link></td><td>{rule.duration && <p>Up to {rule.duration} days</p>}<p>{rule.notes}</p></td><td><p><a href={rule.sourceUrl} target="_blank" rel="noopener noreferrer">{rule.sourceUrl}</a></p><p>Source checked <time dateTime={rule.checkedAt}>{new Date(rule.checkedAt!).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}</time></p><StaleNotice checkedAt={rule.checkedAt!} /></td></tr>)}</tbody></table></section>;
 }

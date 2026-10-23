@@ -1,60 +1,22 @@
 "use client";
-
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { trackWaitlistSignup } from "@/lib/analytics";
-
 export function WaitlistForm() {
+  const id = useId();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const [error, setError] = useState("");
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
     if (!email) return;
-
     setStatus("loading");
     try {
-      const res = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      if (res.ok) {
-        setStatus("success");
-        trackWaitlistSignup(email);
-        setEmail("");
-      } else {
-        setStatus("error");
-      }
-    } catch {
-      setStatus("error");
-    }
+      const response = await fetch("/api/waitlist", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+      if (response.ok) { setStatus("success"); trackWaitlistSignup(); setEmail(""); }
+      else { setError(response.status === 503 ? "Signups are unavailable while the waitlist is being configured. Please try again later." : "We couldn’t save your email. Check the address and try again."); setStatus("error"); }
+    } catch { setError("We couldn’t connect. Check your connection and try again."); setStatus("error"); }
   }
-
-  if (status === "success") {
-    return (
-      <p className="text-sm text-green-600 font-medium">
-        You&apos;re on the list! We&apos;ll notify you when new features launch.
-      </p>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="your@email.com"
-        required
-        className="flex-1 px-3 py-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-gray-300"
-      />
-      <Button type="submit" size="sm" disabled={status === "loading"}>
-        {status === "loading" ? "..." : "Join Waitlist"}
-      </Button>
-      {status === "error" && (
-        <p className="text-xs text-red-500">Something went wrong. Try again.</p>
-      )}
-    </form>
-  );
+  if (status === "success") return <p className="success-message" role="status">Your email is on the waitlist. Visa-change alerts are not active yet.</p>;
+  return <form onSubmit={handleSubmit} className="waitlist-form"><label htmlFor={id}>Email address</label><div className="waitlist-fields"><input id={id} name="email" autoComplete="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required aria-describedby={status === "error" ? `${id}-error` : undefined} /><Button type="submit" size="sm" disabled={status === "loading"} aria-busy={status === "loading"}>{status === "loading" ? "Saving…" : "Join Waitlist"}</Button></div>{status === "error" && <p id={`${id}-error`} className="error-message" role="alert">{error}</p>}</form>;
 }

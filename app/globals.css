@@ -1,27 +1,225 @@
+/* Hallmark · shape: app screen · genre: editorial · theme: Editorial (deal 3/3, seed travelers-compare-passport-entry-3e2b·2650459c·2026-10-23·r0) · redesign: full
+ * nav: passport toolbar · signature: source-checked world atlas · states: loading, empty, error, full
+ * axes: light/instrument-sans/chromatic-green · posture: restrained · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: H, moved coverage beside destination search so unknown data is clear before a country is opened */
+/* Hallmark · dropped window.open · affiliate actions retain tracking and use accessible native links; eVisa now requires configured partner tracking */
+/* Hallmark · dropped onChange={(code) · second-passport choice now opens explicitly and excludes the primary passport */
+/* Hallmark · dropped setEmail(e.target.value) · email field keeps its binding with a labelled native form and honest backend errors */
+/* Hallmark · dropped onClick={() => onChange(null)} · remove-second-passport keeps its callback and also closes the explicit chooser */
+/* Hallmark · dropped onChange(passports · automatic first-passport selection was removed to prevent an immediate duplicate passport */
+/* Hallmark · dropped active === cat · category filter and local analytics keep their behavior with renamed loop variables */
+/* Hallmark · dropped onOpenChange={(o) · drawer callback keeps close behavior and only opens the mobile focus trap at mobile widths */
+/* Hallmark · dropped onChange(p.code) · passport option retains selection and restores keyboard focus to its trigger */
+/* Hallmark · dismissed 74 · visa category colours preserve the established MapLibre semantics and tested expression contract */
+/* Hallmark · answered F4 · selected filter is a selection state, while Search Flights is the country detail action */
 @import "tailwindcss";
+@import "./tokens.css";
+@import "./base.css" layer(base);
 
+@font-face { font-family: "Instrument Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/instrument-sans-400.ttf") format("truetype"); }
+@font-face { font-family: "Instrument Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url("/fonts/instrument-sans-500.ttf") format("truetype"); }
+@font-face { font-family: "Instrument Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url("/fonts/instrument-sans-600.ttf") format("truetype"); }
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  --font-body: "Instrument Sans", "Segoe UI", sans-serif;
+  --font-display: var(--font-body);
+  --text-xs: 0.8125rem;
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  --color-map-focus: oklch(20% 0.02 240);
+  --color-ocean: oklch(92% 0.022 220);
+  --color-visa-free: #22c55e;
+  --color-evisa: #3b82f6;
+  --color-arrival: #f59e0b;
+  --color-required: #ef4444;
+  --color-home: #8b5cf6;
+  --color-unknown: #d1d5db;
+  --color-warning: oklch(37% 0.09 60);
+  --color-warning-paper: oklch(94% 0.045 85);
+  --color-overlay: oklch(15% 0.012 260 / 0.5);
+  --control-height: 44px;
+  --index-width: 320px;
 }
-
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+    --color-paper: oklch(19% 0.012 240);
+    --color-paper-2: oklch(23% 0.014 240);
+    --color-paper-3: oklch(29% 0.015 240);
+    --color-ink: oklch(95% 0.008 85);
+    --color-ink-2: oklch(87% 0.009 85);
+    --color-muted: oklch(74% 0.012 240);
+    --color-rule: oklch(37% 0.016 240);
+    --color-rule-2: oklch(55% 0.016 240);
+    --color-accent: oklch(75% 0.13 152);
+    --color-accent-ink: oklch(19% 0.012 240);
+    --color-focus: oklch(78% 0.13 152);
+    --color-warning: oklch(88% 0.1 85);
+    --color-warning-paper: oklch(30% 0.06 70);
+    --color-error: oklch(80% 0.13 27);
+    --color-success: oklch(78% 0.12 150);
   }
 }
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+html, body { overflow-x: clip; }
+body { font-family: var(--font-body); color: var(--color-ink); background: var(--color-paper); font-size: var(--text-md); }
+button, input, summary, a { -webkit-tap-highlight-color: transparent; }
+button, summary { cursor: pointer; }
+button, input { min-width: 0; }
+button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visible, [role="option"]:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+button:active, .button:active { transform: translateY(1px); }
+button:disabled { cursor: not-allowed; opacity: .65; transform: none; }
+.button { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-xs); min-height: var(--control-height); padding: var(--space-xs) var(--space-sm); border: 1px solid transparent; font-weight: 500; font-size: var(--text-sm); text-decoration: none; line-height: 1.35; transition: background-color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
+.button-primary { color: var(--color-paper); background: var(--color-ink); }
+.button-primary:hover { background: var(--color-ink-2); }
+.button-outline { color: var(--color-ink); background: var(--color-paper); border-color: var(--color-rule-2); }
+.button-outline:hover, .button-ghost:hover { background: var(--color-paper-3); }
+.button-ghost, .button-link { color: var(--color-ink); background: transparent; }
+.button-link { text-decoration: underline; }
+.button-icon { width: var(--control-height); padding: var(--space-xs); flex-shrink: 0; }
+.button-large { padding-inline: var(--space-lg); }
+.atlas-app { width: 100%; max-width: 1600px; margin-inline: auto; min-height: 100svh; display: flex; flex-direction: column; }
+.skip-link { position: fixed; inset: var(--space-xs) auto auto var(--space-xs); z-index: 1000; padding: var(--space-sm); color: var(--color-paper); background: var(--color-ink); transform: translateY(-150%); }
+.skip-link:focus { transform: none; }
+.app-header { display: flex; align-items: center; gap: var(--space-lg); min-height: 76px; padding: var(--space-md) var(--space-lg); }
+.brand { display: flex; align-items: center; gap: var(--space-xs); }
+.brand h1 { font-size: var(--text-xl); font-weight: 650; letter-spacing: -.03em; white-space: nowrap; }
+.app-header p { font-size: var(--text-sm); color: var(--color-muted); flex: 1; }
+.app-header > .relative { margin-left: auto; }
+.atlas-toolbar { padding: var(--space-md) var(--space-lg); background: var(--color-paper-2); display: grid; gap: var(--space-sm); }
+.passport-row { display: flex; align-items: center; gap: var(--space-xs); flex-wrap: wrap; }
+.toolbar-label { font-size: var(--text-sm); margin-right: var(--space-xs); }
+.passport-guide { display: inline-flex; align-items: center; gap: var(--space-2xs); min-height: 44px; font-size: var(--text-sm); margin-left: auto; }
+.passport-control { position: relative; min-width: 0; }
+.passport-trigger { min-width: 200px; justify-content: flex-start; }
+.passport-trigger > svg:last-child { margin-left: auto; flex-shrink: 0; }
+.country-code { font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums; min-width: 22px; }
+.passport-popover { position: absolute; z-index: 50; top: calc(100% + var(--space-2xs)); left: 0; width: min(300px, calc(100dvw - var(--space-xl))); background: var(--color-paper); box-shadow: 0 12px 30px var(--color-overlay); }
+.passport-search { width: 100%; min-height: 48px; padding: var(--space-sm); border-bottom: 1px solid var(--color-rule); }
+.passport-options { max-height: 260px; overflow-y: auto; padding: var(--space-2xs); }
+.passport-option { display: flex; align-items: center; gap: var(--space-xs); min-height: 44px; padding: var(--space-xs); cursor: pointer; font-size: var(--text-sm); }
+.passport-option[data-selected="true"] { background: var(--color-paper-3); }
+.passport-option svg { margin-left: auto; }
+.dual-control { display: flex; align-items: center; gap: var(--space-2xs); min-width: 0; }
+.filter-bar { display: flex; flex-wrap: wrap; gap: var(--space-2xs); }
+.filter-button { min-height: 44px; display: inline-flex; align-items: center; gap: var(--space-xs); padding: var(--space-xs) var(--space-sm); font-size: var(--text-xs); background: var(--color-paper); color: var(--color-ink); }
+.filter-button:hover { background: var(--color-paper-3); }
+.filter-button[aria-pressed="true"] { color: var(--color-paper); background: var(--color-ink); }
+.filter-button > span:last-child { font-variant-numeric: tabular-nums; }
+.workspace { display: grid; grid-template-columns: var(--index-width) minmax(0, 1fr); flex: none; min-height: 600px; height: calc(100svh - 208px); }
+.destination-index { min-height: 0; min-width: 0; display: flex; flex-direction: column; padding: var(--space-lg) var(--space-md) var(--space-md); background: var(--color-paper); }
+.index-heading { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-xs); margin-bottom: var(--space-sm); }
+.index-heading h2 { font-size: var(--text-lg); font-weight: 600; }
+.index-heading > span { font-size: var(--text-sm); color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.search-field { min-height: 44px; display: flex; align-items: center; gap: var(--space-xs); padding-inline: var(--space-sm); background: var(--color-paper-2); }
+.search-field input { border-bottom: 1px solid var(--color-rule-2); width: 100%; min-height: 44px; font-size: var(--text-sm); background: transparent; }
+input::placeholder { color: var(--color-muted); opacity: 1; }
+.coverage { padding-block: var(--space-sm); font-size: var(--text-xs); line-height: 1.6; color: var(--color-muted); }
+.destination-list { overflow-y: auto; flex: 1; min-height: 120px; }
+.destination-row { min-height: 48px; width: 100%; display: flex; align-items: center; gap: var(--space-xs); padding: var(--space-xs); text-align: left; background: transparent; color: var(--color-ink); font-size: var(--text-sm); }
+.destination-row:hover, .destination-row[aria-pressed="true"] { background: var(--color-paper-2); }
+.destination-name { flex: 1; }
+.destination-category { font-size: var(--text-xs); color: var(--color-muted); max-width: 88px; text-align: right; }
+.map-region { position: relative; min-width: 0; min-height: 460px; background: var(--color-ocean); }
+.map-legend { position: absolute; bottom: var(--space-xl); left: var(--space-md); right: var(--space-md); display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-md); width: fit-content; max-width: calc(100% - var(--space-lg)); padding: var(--space-sm); background: var(--color-paper); font-size: var(--text-xs); color: var(--color-ink); pointer-events: none; }
+.map-legend > span { display: inline-flex; gap: var(--space-xs); align-items: center; }
+.legend-swatch { display: inline-block; flex-shrink: 0; width: 10px; height: 10px; }
+.category-visa_free { background: var(--color-visa-free); }
+.category-evisa { background: var(--color-evisa); }
+.category-visa_on_arrival { background: var(--color-arrival); }
+.category-visa_required { background: var(--color-required); }
+.category-home { background: var(--color-home); }
+.category-unknown { background: var(--color-unknown); }
+.country-panel { position: absolute; z-index: 25; inset: 0 0 0 auto; width: min(370px, 100%); overflow-y: auto; background: var(--color-paper); }
+.panel-toolbar { display: flex; justify-content: space-between; align-items: center; padding: var(--space-xs) var(--space-md); background: var(--color-paper-2); font-size: var(--text-sm); }
+.country-detail { display: flex; flex-direction: column; gap: var(--space-lg); padding: var(--space-lg); font-size: var(--text-sm); line-height: 1.6; }
+.country-detail h2 { font-size: var(--text-xl); line-height: 1.2; }
+.detail-passport { color: var(--color-muted); margin-top: var(--space-xs); }
+.visa-status { display: flex; align-items: center; gap: var(--space-xs); font-size: var(--text-lg); font-weight: 600; }
+.detail-section { display: grid; gap: var(--space-xs); }
+.detail-section h3 { font-size: var(--text-sm); font-weight: 600; }
+.provenance a { overflow-wrap: anywhere; color: var(--color-accent); }
+.stale-label { padding: var(--space-sm); color: var(--color-warning); background: var(--color-warning-paper); }
+.detail-actions { display: grid; gap: var(--space-xs); }
+.detail-actions .button { width: 100%; justify-content: flex-start; white-space: normal; }
+.travel-disclaimer { color: var(--color-muted); font-size: var(--text-xs); }
+.partner-unavailable p, .affiliate-disclosure { color: var(--color-muted); font-size: var(--text-xs); margin-top: var(--space-xs); }
+.drawer-overlay { position: fixed; inset: 0; z-index: 70; background: var(--color-overlay); }
+.country-drawer { position: fixed; bottom: 0; left: 0; right: 0; z-index: 80; max-height: 88svh; background: var(--color-paper); display: flex; flex-direction: column; }
+.drawer-scroll { overflow-y: auto; }
+.waitlist-disclosure { position: sticky; bottom: 0; background: var(--color-paper); flex-shrink: 0; padding-top: var(--space-md); margin-top: var(--space-sm); font-size: var(--text-xs); }
+.waitlist-disclosure summary { min-height: 44px; display: flex; align-items: center; text-decoration: underline; }
+.waitlist-disclosure > p { color: var(--color-muted); margin-bottom: var(--space-sm); }
+.waitlist-form { display: grid; gap: var(--space-xs); }
+.waitlist-fields { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+.waitlist-fields input { width: 100%; flex: 1 1 130px; min-height: 44px; padding: var(--space-xs); border: 1px solid var(--color-rule-2); background: var(--color-paper); font-size: var(--text-sm); }
+.error-message { color: var(--color-error); }
+.success-message { color: var(--color-success); }
+.load-error { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); padding: var(--space-md) var(--space-lg); color: var(--color-warning); background: var(--color-warning-paper); font-size: var(--text-sm); }
+.maplibregl-canvas { outline: none; }
+.maplibregl-canvas:focus-visible { outline: 3px solid var(--color-map-focus); outline-offset: -4px; }
+.maplibregl-ctrl-attrib { font-size: 11px !important; }
+.maplibregl-ctrl-group button { width: 44px; height: 44px; }
+.maplibregl-ctrl-group { border-radius: 0; }
+.seo-page { max-width: 1040px; margin-inline: auto; padding: var(--space-lg); }
+.seo-nav { display: flex; justify-content: space-between; gap: var(--space-md); align-items: center; margin-bottom: var(--space-xl); }
+.seo-nav a { min-height: 44px; display: inline-flex; align-items: center; }
+.passport-intro { margin-block: var(--space-xl); max-width: 72ch; display: grid; gap: var(--space-md); }
+.passport-intro h1 { font-size: var(--text-3xl); line-height: 1.2; max-width: 30ch; }
+.passport-counts { display: flex; flex-wrap: wrap; gap: var(--space-lg); padding-block: var(--space-lg); }
+.passport-counts div { display: grid; gap: var(--space-2xs); }
+.passport-counts dt { font-size: var(--text-xs); color: var(--color-muted); }
+.passport-counts dd { margin: 0; font-size: var(--text-xl); }
+.summary-section { margin-block: var(--space-xl); }
+.summary-section h2 { margin-bottom: var(--space-md); }
+.rule-table { width: 100%; text-align: left; font-size: var(--text-sm); border-collapse: collapse; }
+.rule-table th { font-weight: 600; }
+.rule-table th, .rule-table td { vertical-align: top; padding: var(--space-sm) var(--space-sm) var(--space-sm) 0; border-bottom: 1px solid var(--color-rule); }
+.rule-table td p { margin-bottom: var(--space-xs); }
+.rule-table a { overflow-wrap: anywhere; color: var(--color-accent); }
+.unknown-destinations { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-md); padding: 0; list-style: none; font-size: var(--text-sm); }
+.unknown-destinations a { display: inline-flex; min-height: 44px; align-items: center; }
+@media (max-width: 1023px) {
+  :root { --index-width: 280px; }
+  .app-header, .atlas-toolbar { padding-inline: var(--space-md); }
+  .app-header p { display: none; }
+  .app-header > .relative { margin-left: auto; }
+  .toolbar-label { display: none; }
+}
+@media (max-width: 767px) {
+  .app-header { min-height: 64px; }
+  .brand h1 { font-size: var(--text-lg); }
+  .atlas-toolbar { padding-block: var(--space-sm); }
+  .passport-trigger { min-width: 0; width: 100%; }
+  .passport-row > .passport-control { flex: 1 1 150px; }
+  .passport-guide { margin-left: 0; }
+  .dual-control { flex: 1 1 180px; }
+  .dual-control .passport-control { flex: 1; }
+  .filter-button { padding-inline: var(--space-xs); }
+  .workspace { display: flex; flex-direction: column; height: auto; min-height: 0; }
+  .map-region { order: -1; height: 43svh; min-height: 300px; }
+  .destination-index { padding: var(--space-lg) var(--space-md); }
+  .destination-list { max-height: 330px; }
+  .waitlist-disclosure { position: static; }
+  .country-panel { display: none; }
+  .map-legend { bottom: var(--space-lg); left: var(--space-xs); right: var(--space-xs); gap: var(--space-2xs) var(--space-sm); max-width: calc(100% - var(--space-md)); padding: var(--space-xs); }
+  .load-error { flex-wrap: wrap; padding: var(--space-md); }
+  .seo-page { padding: var(--space-md); }
+  .seo-nav { flex-wrap: wrap; }
+  .rule-table thead { display: none; }
+  .rule-table tr { display: grid; padding-block: var(--space-md); border-bottom: 1px solid var(--color-rule); }
+  .rule-table td { border: 0; padding: var(--space-2xs) 0; }
 }
 
-.mapboxgl-canvas {
-  outline: none;
-}
+.share-control { position: relative; margin-left: auto; }
+.share-menu { position: absolute; top: calc(100% + var(--space-2xs)); right: 0; z-index: 60; width: 190px; background: var(--color-paper); border: 1px solid var(--color-rule-2); padding: var(--space-2xs); box-shadow: 0 12px 30px var(--color-overlay); }
+.share-menu button { display: flex; align-items: center; gap: var(--space-xs); min-height: 44px; width: 100%; padding: var(--space-xs); text-align: left; font-size: var(--text-sm); }
+.share-menu button:hover { background: var(--color-paper-2); }
+.share-menu p { font-size: var(--text-xs); padding: var(--space-xs); }
 
-.mapboxgl-ctrl-attrib {
-  font-size: 10px !important;
-}
+.data-scope { font-size: var(--text-xs); margin-bottom: var(--space-xs); }
+.data-scope summary { min-height: 44px; display: flex; align-items: center; text-decoration: underline; }
+.data-scope p { padding-bottom: var(--space-sm); line-height: 1.6; color: var(--color-muted); }
+.restriction-notice { display: grid; gap: var(--space-xs); padding: var(--space-sm); color: var(--color-warning); background: var(--color-warning-paper); }
+
+.map-loading { position: absolute; top: var(--space-md); left: var(--space-md); padding: var(--space-sm); color: var(--color-ink); background: var(--color-paper); font-size: var(--text-sm); }
+
+.map-error { position: absolute; z-index: 2; top: var(--space-md); left: var(--space-md); right: var(--space-xl); max-width: 32ch; display: grid; gap: var(--space-sm); padding: var(--space-md); background: var(--color-paper); color: var(--color-ink); font-size: var(--text-sm); }

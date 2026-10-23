@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-23T21:48:50.044Z",
+  "reviewId": "factory-official-source-review-v1",
+  "reviewMeaning": "Tool-assisted manual reading of official sources. This is not human immigration review, a government endorsement or an admission guarantee.",
+  "scope": "Ordinary-passport short tourist visits only, subject to the per-record conditions and individual exceptions.",
+  "governmentScraperUsed": false,
+  "humanLaunchReviewComplete": false,
+  "totalPassports": 50,
+  "publishedPairs": 1616,
+  "originalApproximatePairs": 9700,
+  "sourceDatasetSha256": "6c50e7979e9f22eb57c77cf8b2188836797e47617932079a76392cfb47973dbd",
+  "unknownPairsRemain": true,
+  "sources": {
+    "eu_policy": "https://www.consilium.europa.eu/en/policies/eu-visa-policy/",
+    "schengen_members": "https://www.consilium.europa.eu/en/infographics/schengen-visa/",
+    "eu_travel": "https://europa.eu/youreurope/citizens/travel/entry-exit/eu-citizen/index_en.htm",
+    "efta_travel": "https://www.consilium.europa.eu/en/infographics/schengen-border-controls/",
+    "schengen_required": "https://government.se/government-policy/migration-and-asylum/list-of-foreign-citizens-who-require-visa-for-entry-into-sweden/",
+    "japan_exempt": "https://www.mofa.go.jp/j_info/visit/visa/short/novisa.html",
+    "japan_visa": "https://www.mofa.go.jp/j_info/visit/visa/index.html",
+    "singapore": "https://www.ica.gov.sg/enter-transit-depart/entering-singapore/visa_requirements",
+    "india": "https://indianvisaonline.gov.in/evisa/tvoa.html",
+    "maldives": "https://www.immigration.gov.mv/visa/tourist-visa"
+  },
+  "groups": [
+    {
+      "id": "schengen",
+      "destinations": [
+        "AT",
+        "BE",
+        "BG",
+        "HR",
+        "CZ",
+        "DK",
+        "EE",
+        "FI",
+        "FR",
+        "DE",
+        "GR",
+        "HU",
+        "IT",
+        "LV",
+        "LT",
+        "LU",
+        "MT",
+        "NL",
+        "PL",
+        "PT",
+        "RO",
+        "SK",
+        "SI",
+        "ES",
+        "SE",
+        "IS",
+        "LI",
+        "NO",
+        "CH"
+      ],
+      "passport_groups": {
+        "eu": [
+          "AT",
+          "BE",
+          "BG",
+          "CZ",
+          "DE",
+          "DK",
+          "EE",
+          "ES",
+          "FI",
+          "FR",
+          "GR",
+          "HR",
+          "HU",
+          "IE",
+          "IT",
+          "LT",
+          "LU",
+          "LV",
+          "MT",
+          "NL",
+          "PL",
+          "PT",
+          "RO",
+          "SE",
+          "SI",
+          "SK"
+        ],
+        "efta": [
+          "CH",
+          "IS",
+          "NO"
+        ],
+        "visa_exempt": [
+          "AE",
+          "AR",
+          "AU",
+          "BR",
+          "CA",
+          "CL",
+          "GB",
+          "IL",
+          "JP",
+          "KR",
+          "MX",
+          "MY",
+          "NZ",
+          "SG",
+          "US"
+        ],
+        "visa_required": [
+          "CN",
+          "IN",
+          "RU",
+          "TH",
+          "TR",
+          "ZA"
+        ]
+      },
+      "supporting_sources": [
+        "schengen_members",
+        "eu_policy",
+        "eu_travel",
+        "efta_travel",
+        "schengen_required"
+      ]
+    },
+    {
+      "id": "japan",
+      "destinations": [
+        "JP"
+      ],
+      "required": [
+        "CN",
+        "IN",
+        "RU",
+        "ZA"
+      ],
+      "conditional_e_passport": [
+        "TH",
+        "MY",
+        "BR",
+        "AE"
+      ],
+      "conditional_machine_readable": [
+        "TR"
+      ],
+      "supporting_sources": [
+        "japan_exempt",
+        "japan_visa"
+      ]
+    },
+    {
+      "id": "singapore",
+      "destinations": [
+        "SG"
+      ],
+      "visa_required_in_supported_passports": [
+        "IN",
+        "RU"
+      ],
+      "duration": "not inferred from visa status",
+      "supporting_sources": [
+        "singapore"
+      ]
+    },
+    {
+      "id": "india",
+      "destinations": [
+        "IN"
+      ],
+      "excluded_unclassified": [
+        "CN",
+        "TR"
+      ],
+      "duration": "not inferred across different e-Tourist products",
+      "supporting_sources": [
+        "india"
+      ]
+    },
+    {
+      "id": "maldives",
+      "destinations": [
+        "MV"
+      ],
+      "excluded_restricted": [
+        "IL"
+      ],
+      "duration": "not stated in the checked source; no duration invented",
+      "supporting_sources": [
+        "maldives"
+      ]
+    }
+  ],
+  "excludedPairs": [
+    {
+      "passport": "IL",
+      "destination": "MV",
+      "sourceUrl": "https://www.immigration.gov.mv/visa/tourist-visa",
+      "checkedAt": "2026-10-23T21:48:50.044Z",
+      "reason": "Maldives Immigration states that entry is not granted on Israeli passports from 15 April 2025. The four visa categories cannot represent an entry ban, so no visa label is published for this pair."
+    }
+  ],
+  "retainedGates": [
+    "Human source and country-exception review before customer launch",
+    "Partner enrollment and actual affiliate attribution",
+    "Weekly RuleDiff ingestion with human approval before publication",
+    "Confirmed-alert email provider and delivery verification"
+  ],
+  "historicalSourceLimits": {
+    "efta_travel": "Council infographic reviewed 10 August 2026; used only for EU/EFTA traveller grouping and border checks, not its prospective ETIAS timetable. EU travel-document source also applies.",
+    "schengen_required": "Swedish government list dated 2023; present official page checked with current EU common-policy and membership sources. National restrictions and exemptions still require launch review."
+  }
+}
