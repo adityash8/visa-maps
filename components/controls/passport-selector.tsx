@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useRef, useState, useEffect } from "react";
 import { Command } from "cmdk";
+import { ChevronDown, Check } from "lucide-react";
 import type { Passport } from "@/lib/constants";
 
 interface PassportSelectorProps {
@@ -10,73 +11,41 @@ interface PassportSelectorProps {
   onChange: (code: string) => void;
   label?: string;
 }
-
-export function PassportSelector({
-  passports,
-  value,
-  onChange,
-  label = "Passport",
-}: PassportSelectorProps) {
+export function PassportSelector({ passports, value, onChange, label = "Passport" }: PassportSelectorProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-
-  const selected = passports.find((p) => p.code === value);
-
+  const id = useId();
+  const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const selected = passports.find((passport) => passport.code === value);
+  useEffect(() => {
+    if (!open) return;
+    function dismiss(event: PointerEvent) {
+      if (!root.current?.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener("pointerdown", dismiss);
+    return () => document.removeEventListener("pointerdown", dismiss);
+  }, [open]);
   return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50 text-sm min-w-[180px]"
-      >
-        {selected ? (
-          <>
-            <span>{selected.flag}</span>
-            <span className="font-medium">{selected.name}</span>
-          </>
-        ) : (
-          <span className="text-gray-400">{label}</span>
-        )}
-        <svg
-          className="ml-auto h-4 w-4 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+    <div className="passport-control" ref={root} onKeyDown={(event) => {
+      if (event.key === "Escape") { setOpen(false); trigger.current?.focus(); }
+    }}>
+      <button ref={trigger} className="button button-outline passport-trigger" aria-label={`${label}: ${selected?.name ?? "Choose a passport"}`} aria-expanded={open} aria-haspopup="listbox" aria-controls={id} onClick={() => setOpen(!open)}>
+        <span className="country-code" aria-hidden="true">{value}</span>
+        <span>{selected?.name ?? label}</span>
+        <ChevronDown size={16} aria-hidden="true" />
       </button>
-
       {open && (
-        <div className="absolute top-full mt-1 left-0 z-50 w-64 bg-white border rounded-lg shadow-xl overflow-hidden">
-          <Command shouldFilter={true}>
-            <Command.Input
-              value={search}
-              onValueChange={setSearch}
-              placeholder="Search passports..."
-              className="w-full px-3 py-2 text-sm border-b outline-none"
-            />
-            <Command.List className="max-h-60 overflow-y-auto p-1">
-              <Command.Empty className="px-3 py-2 text-sm text-gray-500">
-                No passport found.
-              </Command.Empty>
-              {passports.map((p) => (
-                <Command.Item
-                  key={p.code}
-                  value={`${p.name} ${p.code}`}
-                  onSelect={() => {
-                    onChange(p.code);
-                    setOpen(false);
-                    setSearch("");
-                  }}
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md cursor-pointer hover:bg-gray-100 data-[selected=true]:bg-gray-100"
-                >
-                  <span>{p.flag}</span>
-                  <span>{p.name}</span>
-                  {p.code === value && (
-                    <svg className="ml-auto h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
+        <div className="passport-popover">
+          <Command label={label} shouldFilter>
+            <Command.Input autoFocus value={search} onValueChange={setSearch} placeholder="Search passports…" aria-label={`Search ${label.toLowerCase()}s`} className="passport-search" />
+            <Command.List id={id} className="passport-options">
+              <Command.Empty className="empty-message">No passport found. Try a country name.</Command.Empty>
+              {passports.map((passport) => (
+                <Command.Item key={passport.code} value={`${passport.name} ${passport.code}`} onSelect={() => { onChange(passport.code); setOpen(false); setSearch(""); trigger.current?.focus(); }} className="passport-option">
+                  <span className="country-code" aria-hidden="true">{passport.code}</span>
+                  <span>{passport.name}</span>
+                  {passport.code === value && <Check size={16} aria-hidden="true" />}
                 </Command.Item>
               ))}
             </Command.List>

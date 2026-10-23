@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PassportSelector } from "./passport-selector";
@@ -10,43 +11,15 @@ interface DualPassportToggleProps {
   passport2: string | null;
   onChange: (code: string | null) => void;
 }
-
-export function DualPassportToggle({
-  passports,
-  passport2,
-  onChange,
-}: DualPassportToggleProps) {
-  if (!passport2) {
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        className="gap-1.5"
-        onClick={() => onChange(passports[0]?.code ?? "US")}
-      >
-        <Plus className="h-3.5 w-3.5" />
-        2nd Passport
-      </Button>
-    );
-  }
-
+export function DualPassportToggle({ passports, passport2, onChange }: DualPassportToggleProps) {
+  const [choosing, setChoosing] = useState(false);
+  if (!passport2 && !choosing) return (
+    <Button variant="outline" size="sm" onClick={() => setChoosing(true)}><Plus size={16} aria-hidden="true" />2nd Passport</Button>
+  );
   return (
-    <div className="flex items-center gap-1">
-      <span className="text-xs text-gray-500">+</span>
-      <PassportSelector
-        passports={passports}
-        value={passport2}
-        onChange={(code) => onChange(code)}
-        label="2nd Passport"
-      />
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7"
-        onClick={() => onChange(null)}
-      >
-        <X className="h-3.5 w-3.5" />
-      </Button>
+    <div className="dual-control">
+      <PassportSelector passports={passports} value={passport2 ?? ""} onChange={(code) => { onChange(code); setChoosing(false); }} label="2nd Passport" />
+      <Button variant="ghost" size="icon" aria-label="Remove second passport" onClick={() => { onChange(null); setChoosing(false); }}><X size={16} aria-hidden="true" /></Button>
     </div>
   );
 }

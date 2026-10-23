@@ -1,127 +1,30 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PassportHero } from "@/components/seo/passport-hero";
 import { VisaSummaryTable } from "@/components/seo/visa-summary-table";
-import type { Passport, VisaRulesMap, VisaCategory } from "@/lib/constants";
-import { VISA_CATEGORIES } from "@/lib/constants";
-import Link from "next/link";
-import fs from "fs";
-import path from "path";
-
-function getPassports(): Passport[] {
-  const filePath = path.join(process.cwd(), "public/data/passports.json");
-  return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+import { VISA_CATEGORIES, type VisaRulesMap } from "@/lib/constants";
+import { getVisaRule, countByCategory, isReviewedVisaRule } from "@/lib/visa-data";
+import { destinations } from "@/lib/destinations";
+import passports from "@/public/data/passports.json";
+import sourceReview from "@/public/data/source-review.json";
+import rawRules from "@/public/data/visa-rules.json";
+const rules = rawRules as VisaRulesMap;
+export function generateStaticParams() { return passports.map(({ code }) => ({ country: code.toLowerCase() })); }
+export async function generateMetadata({ params }: { params: Promise<{ country: string }> }): Promise<Metadata> {
+  const { country } = await params;
+  const passport = passports.find(({ code }) => code.toLowerCase() === country.toLowerCase());
+  if (!passport) return { title: "Passport not found", robots: { index: false } };
+  const title = `${passport.name} passport entry rules | Visa Maps`;
+  const description = `Source-checked entry rules for ${passport.name} ordinary passports, with conditions, official sources and checked dates. Unknown destinations are marked No data.`;
+  const hasRules = Object.values(rules[passport.code] ?? {}).some(isReviewedVisaRule);
+  return { title, description, alternates: { canonical: `/passport/${passport.code.toLowerCase()}` }, robots: { index: hasRules, follow: true }, openGraph: { title, description, url: `/passport/${passport.code.toLowerCase()}` }, twitter: { card: "summary_large_image", title, description } };
 }
-
-function getRules(): VisaRulesMap {
-  const filePath = path.join(process.cwd(), "public/data/visa-rules.json");
-  return JSON.parse(fs.readFileSync(filePath, "utf-8"));
-}
-
-export function generateStaticParams() {
-  const passports = getPassports();
-  return passports.map((p) => ({ country: p.code.toLowerCase() }));
-}
-
-export function generateMetadata({
-  params,
-}: {
-  params: { country: string };
-}): Metadata {
-  const passports = getPassports();
-  const passport = passports.find(
-    (p) => p.code.toLowerCase() === params.country.toLowerCase()
-  );
-  if (!passport) return {};
-
-  const rules = getRules();
-  const destinations = rules[passport.code] ?? {};
-  const visaFreeCount = Object.values(destinations).filter(
-    (r) => r.category === "visa_free"
-  ).length;
-
-  const title = `${passport.name} Passport Visa Map — ${visaFreeCount} Visa-Free Countries`;
-  const description = `See where a ${passport.name} passport can take you. ${visaFreeCount} visa-free countries, eVisa options, and visa-on-arrival destinations on an interactive map.`;
-
-  return {
-    title,
-    description,
-    openGraph: { title, description },
-    twitter: { card: "summary_large_image", title, description },
-  };
-}
-
-export default function PassportPage({
-  params,
-}: {
-  params: { country: string };
-}) {
-  const passports = getPassports();
-  const passport = passports.find(
-    (p) => p.code.toLowerCase() === params.country.toLowerCase()
-  );
+export default async function PassportPage({ params }: { params: Promise<{ country: string }> }) {
+  const { country } = await params;
+  const passport = passports.find(({ code }) => code.toLowerCase() === country.toLowerCase());
   if (!passport) notFound();
-
-  const rules = getRules();
-  const destinations = rules[passport.code] ?? {};
-
-  const counts: Record<VisaCategory, number> = {
-    visa_free: 0,
-    evisa: 0,
-    visa_on_arrival: 0,
-    visa_required: 0,
-  };
-  for (const r of Object.values(destinations)) {
-    counts[r.category]++;
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="border-b bg-white px-4 py-3">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <Link href="/" className="font-bold text-lg">
-            Visa Maps
-          </Link>
-          <Link
-            href={`/?p=${passport.code}`}
-            className="text-sm text-blue-600 hover:underline"
-          >
-            Open Interactive Map
-          </Link>
-        </div>
-      </nav>
-
-      <PassportHero passport={passport} counts={counts} />
-
-      <div className="max-w-3xl mx-auto px-4 pb-16">
-        {VISA_CATEGORIES.map((cat) => (
-          <VisaSummaryTable key={cat} rules={destinations} category={cat} />
-        ))}
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "BreadcrumbList",
-              itemListElement: [
-                {
-                  "@type": "ListItem",
-                  position: 1,
-                  name: "Visa Maps",
-                  item: "/",
-                },
-                {
-                  "@type": "ListItem",
-                  position: 2,
-                  name: `${passport.name} Passport`,
-                  item: `/passport/${passport.code.toLowerCase()}`,
-                },
-              ],
-            }),
-          }}
-        />
-      </div>
-    </div>
-  );
+  const reviewed = Object.fromEntries(Object.entries(rules[passport.code] ?? {}).filter(([code, rule]) => code !== passport.code && isReviewedVisaRule(rule)));
+  const unknown = destinations.filter(({ code }) => code !== passport.code && !getVisaRule(rules, passport.code, code));
+  return <main className="seo-page"><nav className="seo-nav" aria-label="Passport guide"><Link href="/">Visa Maps</Link><Link className="button button-primary" href={`/?p=${passport.code}`}>Open Interactive Map</Link></nav><PassportHero passport={passport} counts={countByCategory(rules, passport.code)} />{VISA_CATEGORIES.map((category) => <VisaSummaryTable key={category} rules={reviewed} category={category} passportCode={passport.code} />)}<section className="summary-section"><h2>No data ({unknown.length})</h2><p>These destinations do not yet have a source-checked record for this passport.</p>{sourceReview.excludedPairs.filter((pair) => pair.passport === passport.code).map((pair) => <p key={pair.destination} className="stale-label">{pair.reason} <a href={pair.sourceUrl} target="_blank" rel="noopener noreferrer">Official entry restriction</a></p>)}<ul className="unknown-destinations">{unknown.map(({ code, name }) => <li key={code}><Link href={`/?p=${passport.code}&destination=${code}`}>{name}</Link></li>)}</ul></section><p className="travel-disclaimer">Check official sources before travel. Entry is not guaranteed.</p></main>;
 }

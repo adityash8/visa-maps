@@ -28,6 +28,16 @@ export type VisaRule = {
   category: VisaCategory;
   duration?: number;
   notes?: string;
+  sourceUrl?: string;
+  checkedAt?: string;
+  approvedBy?: string;
+};
+
+export type ReviewedVisaRule = VisaRule & {
+  notes: string;
+  sourceUrl: string;
+  checkedAt: string;
+  approvedBy: string;
 };
 
 export type VisaRulesMap = Record<string, Record<string, VisaRule>>;
